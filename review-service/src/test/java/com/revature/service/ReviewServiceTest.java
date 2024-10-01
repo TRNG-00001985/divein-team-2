@@ -40,13 +40,13 @@ public class ReviewServiceTest {
         review = new Review();
         review.setReviewId(11L);
         review.setProductId(7L);
-        review.setBuyerId(12L);
+        review.setUserId("user_01");
         review.setRating(5);
         review.setComment("Great product!");
 
         reviewRequest = new ReviewRequest();
         reviewRequest.setProductId(7L); // This should match the product ID in `review`
-        reviewRequest.setBuyerId(12L); // This should match the buyer ID in `review`
+        reviewRequest.setUserId("user_01"); // This should match the buyer ID in `review`
         reviewRequest.setRating(5);
         reviewRequest.setComment("Great product!");
     }
@@ -59,7 +59,7 @@ public class ReviewServiceTest {
 
         assertThat(reviewResponse).isNotNull();
         assertThat(reviewResponse.getProductId()).isEqualTo(review.getProductId());
-        assertThat(reviewResponse.getBuyerId()).isEqualTo(review.getBuyerId());
+        assertThat(reviewResponse.getUserId()).isEqualTo(review.getUserId());
         assertThat(reviewResponse.getRating()).isEqualTo(review.getRating());
         assertThat(reviewResponse.getComment()).isEqualTo(review.getComment());
     }
@@ -113,10 +113,10 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void getAllReviewsByBuyerId_ReturnsListOfReviews() {
-        given(reviewRepository.findByBuyerId(anyLong())).willReturn(List.of(review));
+    public void getAllReviewsByUserId_ReturnsListOfReviews() {
+        given(reviewRepository.findByUserId(toString())).willReturn(List.of(review));
 
-        List<ReviewResponse> reviews = reviewService.getAllReviewsByBuyerId(12L);
+        List<ReviewResponse> reviews = reviewService.getAllReviewsByUserId("user_01");
 
         assertThat(reviews).isNotEmpty();
         assertThat(reviews.size()).isEqualTo(1);
