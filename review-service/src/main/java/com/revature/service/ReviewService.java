@@ -38,7 +38,7 @@ public class ReviewService {
 
         return Review.builder()
                 .productId(reviewRequest.getProductId())
-                .buyerId(reviewRequest.getBuyerId())
+                .userId(reviewRequest.getUserId())
                 .rating(reviewRequest.getRating())
                 .comment(reviewRequest.getComment())
                 .build();
@@ -51,7 +51,7 @@ public class ReviewService {
     	 return new ReviewResponse(
                  review.getReviewId(),
                  review.getProductId(),
-                 review.getBuyerId(),
+                 review.getUserId(),
                  review.getRating(),
                  review.getComment(),
                  review.getReviewDate());
@@ -109,9 +109,9 @@ public class ReviewService {
     }
 
    
-    public List<ReviewResponse> getAllReviewsByBuyerId(Long buyerId) {
-    	logger.info("Fetching reviews for productId:{}",buyerId);
-    	List<Review> reviews = reviewRepository.findByBuyerId(buyerId);
+    public List<ReviewResponse> getAllReviewsByUserId(String userId) {
+    	logger.info("Fetching reviews for productId:{}",userId);
+    	List<Review> reviews = reviewRepository.findByUserId(userId);
         return reviews.stream().map(this::mapToReviewResponse).toList();
     }
 }
