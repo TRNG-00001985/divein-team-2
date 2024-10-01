@@ -52,7 +52,7 @@ public class ReviewControllerTest {
     public void setUp() {
         reviewRequest = ReviewRequest.builder()
                 .productId(1L)
-                .buyerId(1L)
+                .userId("user_01")
                 .rating(5)
                 .comment("Great product!")
                 .build();
@@ -60,7 +60,7 @@ public class ReviewControllerTest {
         reviewResponse = ReviewResponse.builder()
                 .reviewId(1L)
                 .productId(1L)
-                .buyerId(1L)
+                .userId("user_01")
                 .rating(5)
                 .comment("Great product!")
                 .build();
@@ -78,7 +78,7 @@ public class ReviewControllerTest {
 
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.productId", CoreMatchers.is(reviewResponse.getProductId().intValue())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.buyerId", CoreMatchers.is(reviewResponse.getBuyerId().intValue())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.userId", CoreMatchers.is(reviewResponse.getUserId().toString())));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ReviewControllerTest {
 
         response.andExpect(MockMvcResultMatchers.status().isAccepted())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.productId", CoreMatchers.is(reviewRequest.getProductId().intValue())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.buyerId", CoreMatchers.is(reviewRequest.getBuyerId().intValue())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.buyerId", CoreMatchers.is(reviewRequest.getUserId().toString())));
     }
 
     @Test
@@ -124,13 +124,13 @@ public class ReviewControllerTest {
     }
 
     @Test
-    public void getAllReviewsByBuyerId_ReturnsListOfReviews() throws Exception {
-        Long buyerId = 1L;
+    public void getAllReviewsByUserId_ReturnsListOfReviews() throws Exception {
+        String userId = "user_01";
 
-        BDDMockito.given(reviewService.getAllReviewsByBuyerId(anyLong())).willReturn(reviewResponseList);
+        BDDMockito.given(reviewService.getAllReviewsByUserId(toString())).willReturn(reviewResponseList);
 
-        ResultActions response = mockMvc.perform(get("/api/review/buyer")
-                .param("buyerId", String.valueOf(buyerId)));
+        ResultActions response = mockMvc.perform(get("/api/review/user")
+                .param("userId", String.valueOf(userId)));
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(reviewResponseList.size())));
