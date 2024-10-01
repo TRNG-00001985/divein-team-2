@@ -1,0 +1,42 @@
+global:
+  scrape_interval:     10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'ProductService'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ProductService:8088']
+        labels:
+          application: 'Product Service Application'
+  - job_name: 'OrderService'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['OrderService:8086']
+        labels:
+          application: 'Order Service Application'
+  - job_name: 'InventoryService'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['InventoryService:8085']
+        labels:
+          application: 'Inventory Service Application'
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8087']
+        labels:
+          application: 'Notification Service Application'
+  - job_name: 'CartService'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['CartService:8081']
+        labels:
+          application: 'Cart Service Application'
+  - job_name: 'review-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['review-dervice:8082']
+        labels:
+          application: 'Review Service Application'
+  

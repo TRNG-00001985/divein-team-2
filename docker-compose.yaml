@@ -1,0 +1,172 @@
+version: '3.8'
+services:  # Corrected 'service' to 'services'
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  DiscoveryService:
+    image: pranathik1205/discoveryservice:latest
+    build:
+      context: ./DiscoveryService
+      dockerfile: Dockerfile
+    ports:
+      - 8089:8089
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  CartService:
+    image: divein/cartservice:latest
+    build:
+      context: ./CartService
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  review-service:  # Indentation and service name correction
+    image: divein/review-service:latest
+    build:
+      context: ./review-service
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  apigateway-service:
+    image: divein/apigateway-service:latest
+    build:
+      context: ./apigateway-service
+      dockerfile: Dockerfile
+    ports:
+      - 9000:9000
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - DiscoveryService
+
+  auth0demo:
+    image: divein/auth0demo:latest
+    build:
+      context: ./auth0demo
+      dockerfile: Dockerfile
+    ports:
+      - 8086:8086
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - DiscoveryService
+      - apigateway-service
+
+  OrderService:
+    image: pranathik1205/orderservice:latest
+    build:
+      context: ./OrderService
+      dockerfile: Dockerfile
+    ports:
+      - 8086:8086
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - spring.kafka.bootstrap-servers=broker:29092
+    depends_on:
+      - DiscoveryService
+      - apigateway-service
+
+  ProductService:
+    image: divein/productservice:latest
+    build:
+      context: ./ProductService
+      dockerfile: Dockerfile
+    ports:
+      - 8088:8088
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - DiscoveryService
+      - apigateway-service
+
+  InventoryService:
+    image: divein/inventoryservice:latest
+    build:
+      context: ./InventoryService
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - DiscoveryService
+      - apigateway-service
+
+  notification-service:
+    image: divein/notification-service:latest
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - 8087:8087
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - spring.kafka.bootstrap-servers=broker:29092
+    depends_on:
+      - DiscoveryService
+      - apigateway-service
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - ProductService
+      - OrderService
+      - InventoryService
+      - notification-service
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    links:
+      - prometheus:prometheus
+    volumes:
+      - 'grafana-storage:/var/lib/grafana'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+
+volumes:
+  grafana-storage: {}
