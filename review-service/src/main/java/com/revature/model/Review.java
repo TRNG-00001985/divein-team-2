@@ -29,7 +29,7 @@ public class Review {
 	    private Long productId;
 	 
 	@Column(nullable = false)
-    private Long buyerId;
+    private String userId;
 	
 
     @Column(nullable = false)
