@@ -130,24 +130,24 @@ public class ReviewController {
     
     
     
-    @CircuitBreaker(name = "reviewService", fallbackMethod = "fallbackGetAllReviewsByBuyerId")
-    @GetMapping("buyer")
-    public ResponseEntity<List<ReviewResponse>> getAllReviewsByBuyerId(@RequestParam Long buyerId) {
-    	 logger.info("Fetching reviews for buyerId: {}", buyerId);
+    @CircuitBreaker(name = "reviewService", fallbackMethod = "fallbackGetAllReviewsByUserId")
+    @GetMapping("user")
+    public ResponseEntity<List<ReviewResponse>> getAllReviewsByUserId(@RequestParam String userId) {
+    	 logger.info("Fetching reviews for userId: {}", userId);
         
     	 try {
             
-    		 List<ReviewResponse> reviews = reviewService.getAllReviewsByBuyerId(buyerId);
-            logger.info("Successfully fetched reviews for buyerId: {}", buyerId);
-             return new ResponseEntity<>(reviewService.getAllReviewsByBuyerId(buyerId), HttpStatus.OK);
+    		 List<ReviewResponse> reviews = reviewService.getAllReviewsByUserId(userId);
+            logger.info("Successfully fetched reviews for userId: {}", userId);
+             return new ResponseEntity<>(reviewService.getAllReviewsByUserId(userId), HttpStatus.OK);
     	 }
     	 catch(Exception e) {
-    		 logger.error("Error while fetching reviews for buyerId:{}", buyerId, e);
+    		 logger.error("Error while fetching reviews for userId:{}", userId, e);
     		 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     		}
     }
-    public ResponseEntity<List<ReviewResponse>> fallbackGetAllReviewsByBuyerId(Long buyerId, Throwable t) {
-        logger.error("Fallback - Failed to fetch reviews for buyerId: {}", buyerId, t);
+    public ResponseEntity<List<ReviewResponse>> fallbackGetAllReviewsByUserId(String userId, Throwable t) {
+        logger.error("Fallback - Failed to fetch reviews for userId: {}", userId, t);
         return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
